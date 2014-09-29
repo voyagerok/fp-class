@@ -17,14 +17,40 @@
 -}
 
 f11a :: Integral a => [a] -> [a]
-f11a = map undefined
+f11a = map (*2)
+
+f11b :: Integral a => [a] -> [a]
+f11b = map (\x -> if even x then x*2 else x)
+
+f11c :: Integral a => [a] -> [a]
+f11c = map (\x -> if odd x then 0  else x)
+
+f11d :: Integral a =>a ->  [a] -> [a]
+f11d k = filter (<= k)
+
+f11e :: Integral a => [a] -> [a]
+f11e = filter (< 0)
+
+f11f :: Integral a => [a] -> [a]
+f11f = filter (\x -> (x > 0) && even x )
 
 {-
  1.2 Дан список декартовых координат точек на плоскости (пар вещественных чисел).
      Преобразовать его следующим образом:
-  a) отфильтровать список так, чтобы в нём остались точки из заданной координатной четверти;
-  b) преобразовать декартовы координаты в полярные.
+  a) отфильтровать список так, чтобы в нём остались точки из заданной координатной 
+b) преобразовать декартовы координаты в полярные.
 -}
+setQuarter :: (Eq a, Num a, Num a1, Num a2, Ord a1, Ord a2) => a -> [(a1,a2)] -> [(a1,a2)] 
+setQuarter n = filter (\(x,y) -> if n == 1 then (x > 0) && (y > 0)
+									else if n == 2 then (x < 0) && (y > 0)
+									else if n == 3 then (x < 0) && (y < 0)
+									else if n == 4 then (x >0) && (y < 0)
+									else error "Wrong quarter")
+
+decToPol = map (\(x,y) -> (r, t) 
+								where 
+								r = sqrt x^2 y^2
+								t = y/x)
 
 {-
  1.3 Дан список слов.
