@@ -1,3 +1,5 @@
+import Data.List
+import Data.Char
 {-
   Все задачи в этом задании должны решаться исключительно с помощью свёрток.
   Явная рекурсия не допускается. Если в решении в качестве вспомогательной
@@ -24,6 +26,36 @@
      функции должно быть значение, возвращаемое по умолчанию).
 -}
 
+f1a :: [Integer] -> Integer
+f1a = foldl (\x y -> x + if even y then y else 0) 0
+f1a_test1 = f1a [1..10] == 30
+f1a_test2= f1a [1..5] == 6
+f1a_test3= f1a [-10..5] == 24
+
+f1b :: [Double] -> (Double, Double)
+f1b = foldl(\(x, y) z -> (x+z, y*z)) (0, 1)
+f1b_test1 = f1b [1..10] == (55, 3628800)
+f1b_test2= f1b [1..5] == (15, 120)
+f1b_test3= f1b [-10..5] == (-40, 0)
+
+f1c :: [Double] -> Double
+f1c = (\(x, y) -> x / y).foldl(\(x,y) z -> (x + z, y + 1)) (0,0)
+f1c_test1 = f1c [1..5] == 3.0 
+f1c_test2 = f1c [2..15] == 8.5 
+f1c_test3 = f1c [3..21] == 12.0
+
+f1d :: Ord a => [a] -> a
+f1d = foldl1 min
+f1d_test1 = f1d [1..5] == 1 
+f1d_test2 = f1d [2..15] == 2 
+f1d_test3 = f1d [3..21] == 3
+
+f1e :: Integral a => [a] -> a
+f1e l = foldl1 min $  filter odd l
+f1e_test1 = f1e [1..5] == 1 
+f1e_test2 = f1e [2..15] == 3 
+f1e_test3 = f1e [3..21] == 3
+
 {-
  2. Свёртки, формирующие списки
   a) Сформировать список, содержащий каждый второй элемент исходного.
@@ -41,6 +73,32 @@
   n) Даны два списка одинаковой длины. Сформировать список, состоящий из результатов применения
      заданной функции двух аргументов к соответствующим элементам исходных списков.
 -}
+
+f2a :: [a] -> [a]
+f2a = fst . foldl (\(acc, c) x -> if even c then (acc ++[x], c + 1) else (acc, c+1)) ([], 1)
+f2a_test1 = f2a [1..10] == [2,4,6,8,10] 
+f2a_test2 = f2a "abcd"== "bd" 
+f2a_test3 = f2a [4, 3, 7, 25] == [3,25]
+
+f2b n l 
+		|length l > n = fst $ foldl (\(acc,c) x -> if c <= n then (acc++[x], c+1) else (acc, c)) ([], 1) l
+		| otherwise = l
+f2b_test1 = f2b 5 [1..10] == [1,2,3,4,5] 
+f2b_test2 = f2b  3"abcd"== "abc" 
+f2b_test3 = f2b 10 [4, 3, 7, 25,27] == [4,3,7,25,27]
+
+f2c :: Integer -> [a] -> [a]
+f2c n = foldl (\acc x -> x : acc) [] . f2b n . foldl (\acc x -> x : acc) []
+f2c_test1 = f2c 5 [1..10] == [6,7,8,9,10] 
+f2c_test2 = f2c  3"abcd"== "bcd" 
+f2c_test3 = f2c 10 [4, 3, 7, 25,27] == [4,3,7,25,27]
+
+f2d (x:xs) = fst $ foldl (\(acc, left) x -> if (x > left) then (acc ++ [x], x) else (acc, x)) ([],x) xs
+f2d_test1 = f2d [1..10] == [2,3,4,5,6,7,8,9,10] 
+f2d_test2 = f2d  "abcd"== "bcd" 
+f2d_test3 = f2d [4, 3, 7, 25,27] == [4,7,25,27]
+
+
 
 {-
  3. Использование свёртки как носителя рекурсии (для запуска свёртки можно использовать список типа [1..n]).
