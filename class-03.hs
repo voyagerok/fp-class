@@ -104,8 +104,13 @@ f3a = groupBy(\x y -> isDigit x == isDigit y)
 f3b :: [(Double, Double)] -> [[(Double, Double)]]
 f3b = groupBy(\(x1,x2) (y1,y2) -> ((x1 > 0) == (y1 > 0)) && ((x2 > 0) == (y2 > 0)))
 
+f3c :: [a] -> Int -> [[a]]
+f3c [] _ = []
+f3c xs n = (take n xs) : f3c (drop n xs) n  
+
 f3d :: [a] -> Int -> Int -> [[a]]
-f3d xs n m = undefined
+f3d [] _ _ = []
+f3d xs n m = (take n xs) : f3d (drop m xs) n m
 
 -- Должно быть True
 test_f3d = f3d [1..10] 4 2 == [[1,2,3,4],[3,4,5,6],[5,6,7,8],[7,8,9,10],[9,10]]
@@ -122,3 +127,8 @@ test_f3d = f3d [1..10] 4 2 == [[1,2,3,4],[3,4,5,6],[5,6,7,8],[7,8,9,10],[9,10]]
     называется элемент, больший своих соседей.
  e) Дан список. Продублировать все его элементы.
 -}
+f4a :: [Char] -> Int
+f4a s = length $ filter (isDigit.head) (f3a s)
+
+f4e :: [a] -> [a]
+f4e = concat.map (\x -> [x,x])
