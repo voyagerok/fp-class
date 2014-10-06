@@ -1,3 +1,5 @@
+import Data.Char
+import Data.List
 {-
 Явная рекурсия в решениях хотя и допускается, но не приветствуется. Старайтесь обходиться стандартными
 функциями, используя при этом создание функций «на лету». Пытайтесь максимально упростить уже написанные
@@ -47,11 +49,6 @@ setQuarter n = filter (\(x,y) -> if n == 1 then (x > 0) && (y > 0)
 									else if n == 4 then (x >0) && (y < 0)
 									else error "Wrong quarter")
 
-decToPol = map (\(x,y) -> (r, t) 
-								where 
-								r = sqrt x^2 y^2
-								t = y/x)
-
 {-
  1.3 Дан список слов.
   a) Преобразовать все слова к верхнему регистру.
@@ -60,7 +57,13 @@ decToPol = map (\(x,y) -> (r, t)
 -}
 
 f13a :: [String] -> [String]
-f13a = map undefined
+f13a = map $ map toUpper
+
+f13b :: Int -> [[a]] -> [[a]]
+f13b n = filter (\x -> length x == n)
+
+f13c :: Eq a => a -> [[a]] -> [[a]]
+f13c c = filter (\x -> head x == c)
 
 {-
 2. Формирование числовых последовательностей (iterate).
@@ -71,8 +74,17 @@ f13a = map undefined
  e) Список строк, представляющих n-значные двоичные числа.
 -}
 
-nats :: [Integer]
-nats = iterate undefined 0
+f2a :: [Integer]
+f2a = iterate (+1) 0
+
+f2b :: [Integer]
+f2b = iterate (+2) 0
+
+f2c :: [Double]
+f2c = iterate ((/2).(+1)) 1
+
+f2d :: [Char]
+f2d = take 26 (iterate succ 'a')
 
 {-
 3. Группировка списков.
@@ -85,6 +97,12 @@ nats = iterate undefined 0
      длиной n элементов со сдвигом относительно предыдущего подсписка на m элементов.
   e) Дан список. Определить длину самого длинного подсписка, содержащего подряд идущие одинаковые элементы.
 -}
+
+f3a :: [Char] -> [[Char]]
+f3a = groupBy(\x y -> isDigit x == isDigit y)
+
+f3b :: [(Double, Double)] -> [[(Double, Double)]]
+f3b = groupBy(\(x1,x2) (y1,y2) -> ((x1 > 0) == (y1 > 0)) && ((x2 > 0) == (y2 > 0)))
 
 f3d :: [a] -> Int -> Int -> [[a]]
 f3d xs n m = undefined
