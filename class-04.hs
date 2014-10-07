@@ -1,3 +1,5 @@
+import Data.List
+import Data.Char
 {-
   Все задачи в этом задании должны решаться исключительно с помощью свёрток.
   Явная рекурсия не допускается. Если в решении в качестве вспомогательной
@@ -24,6 +26,38 @@
      функции должно быть значение, возвращаемое по умолчанию).
 -}
 
+f1a :: [Integer] -> Integer
+f1a = foldl (\x y -> if even y then (x + y) else x) 0
+f1a_test1 = f1a [1..10] == 30
+f1a_test2= f1a [1..5] == 6
+f1a_test3= f1a [-10..5] == 24
+
+f1b :: [Double] -> (Double, Double)
+f1b = foldl(\(x, y) z -> (x+z, y*z)) (0, 1)
+f1b_test1 = f1b [1..10] == (55, 3628800)
+f1b_test2= f1b [1..5] == (15, 120)
+f1b_test3= f1b [-10..5] == (-40, 0)
+
+avg' (x,y) = x / y
+
+f1c :: [Double] -> Double
+f1c = avg'.foldl(\(x,y) z -> (x + z, y + 1)) (0,0)
+f1c_test1 = f1c [1..5] == 3.0 
+f1c_test2 = f1c [2..15] == 8.5 
+f1c_test3 = f1c [3..21] == 12.0
+
+f1d :: Ord a => [a] -> a
+f1d (x:xs) = foldl(\m x -> if x < m then x else m) x xs
+f1d_test1 = f1d [1..5] == 1 
+f1d_test2 = f1d [2..15] == 2 
+f1d_test3 = f1d [3..21] == 3
+
+f1e :: Integral a => a -> [a] -> a
+f1e def = foldl(\m x -> if x < m && odd x then x else m) def
+f1e_test1 = f1e 5 [1..5] == 1 
+f1e_test2 = f1e 5 [2..15] == 3 
+f1e_test3 = f1e 5 [2,4,6] == 5
+
 {-
  2. Свёртки, формирующие списки
   a) Сформировать список, содержащий каждый второй элемент исходного.
@@ -42,6 +76,77 @@
      заданной функции двух аргументов к соответствующим элементам исходных списков.
 -}
 
+f2a :: [a] -> [a]
+f2a = fst . foldl (\(acc, c) x -> if even c then (acc ++[x], c + 1) else (acc, c+1)) ([], 1)
+f2a_test1 = f2a [1..10] == [2,4,6,8,10] 
+f2a_test2 = f2a "abcd"== "bd" 
+f2a_test3 = f2a [4, 3, 7, 25] == [3,25]
+
+length'  = foldl (\c x -> c + 1) 0
+
+f2b :: Int -> [a] -> [a]
+f2b n l 
+	|length' l > n = fst $ foldl (\(acc,c) x -> if c <= n then (acc++[x], c+1) else (acc, c)) ([], 1) l
+	| otherwise = l
+f2b_test1 = f2b 5 [1..10] == [1,2,3,4,5] 
+f2b_test2 = f2b  3"abcd"== "abc" 
+f2b_test3 = f2b 10 [4, 3, 7, 25,27] == [4,3,7,25,27]
+
+f2c :: Int -> [a] -> [a]
+f2c n l
+	|length l > n = fst $ foldl(\(acc, c) x -> if (c > (length' l) - n) then (acc++[x], c+1) else (acc, c+1)) ([], 1) l
+	|otherwise = l
+f2c_test1 = f2c 5 [1..10] == [6,7,8,9,10] 
+f2c_test2 = f2c  3"abcd"== "bcd" 
+f2c_test3 = f2c 10 [4, 3, 7, 25,27] == [4,3,7,25,27]
+
+f2d :: Ord a => [a] -> [a]
+f2d (x:xs) = fst $ foldl (\(acc, left) x -> if (x > left) then (acc ++ [x], x) else (acc, x)) ([],x) xs
+f2d_test1 = f2d [1..10] == [2,3,4,5,6,7,8,9,10] 
+f2d_test2 = f2d  "abcd"== "bcd" 
+f2d_test3 = f2d [4, 3, 7, 25,27] == [4,7,25,27]
+
+delete_spaces :: [Char] -> [Char]
+delete_spaces = fst . foldl(\(acc, n) x -> if isSpace x then (if n < 1 then (acc++[x], n + 1) else (acc, n + 1)) else (acc++[x], 0)) ([], 0)
+
+f2f :: [Char] -> [[Char]]
+f2f l = fst $ foldl(\(acc, (s, len)) x -> if isSpace x then (acc++[s], ("", len + 1)) else (if len == length'(delete_spaces l) then (acc++[s++[x]], ("", len + 1)) else (acc, (s++[x], len + 1)))) ([], ("", 1)) (delete_spaces l)
+f2f_test1 = f2f "acc  dewf wet" == ["acc","dewf","wet"] 
+f2f_test2 = f2f  "ab cd"== ["ab", "cd"] 
+f2f_test3 = f2f "a ab abcd  " == ["a","ab","abcd"]
+
+f2g :: (Num a, Ord a) => a -> [a1] -> [[a1]]
+f2g n = fst . foldl(\(acc, (sub, c)) x -> if c < n then (acc, (sub++[x], c + 1)) else (acc++[sub++[x]], ([], 1))) ([], ([], 1))
+f2g_test1 = f2g 3 [1..9] == [[123],[456], [789]]
+f2g_test2 = f2g 3[1..12] == [[123],[456], [789], [10,11,12]]
+f2g_test3 = f2g 3 [1..15] == [[123],[456], [789], [10,11,12], [13,14,15]]
+
+repeat' :: (Enum b, Num b) => b -> a -> [a]
+repeat' n k = foldl (\acc x -> acc ++ [k]) [] [1..n]
+
+f2l :: (Enum b, Num b) => b -> [a] -> [a]
+f2l n = foldl(\acc  x -> acc ++ (repeat' n x)) []
+f2l_test1 = f2l 5 [1..3] == [1,1,1,1,1,2,2,2,2,2,3,3,3,3,3]
+f2l_test2 = f2l 2 [1..3] == [1,1,2,2,3,3]
+f2l_test3 = f2l 3 [1..3] == [1,1,1,2,2,2,3,3,3]
+
+f2m :: Eq a => [a] -> [a]
+f2m (x:xs) = fst $ foldl (\(acc, prev) x -> if x /= prev then (acc++[x], x) else (acc, x)) ([x], x) xs
+f2m_test1 = f2m [1,1,2,2,3,3] == [1,2,3]
+f2m_test2 = f2m "aabcc" == "abc"
+f2m_test3 = f2m [3,4,3,2,2] == [3,4,3,2]
+
+f2n :: (t -> b -> a) -> [t] -> [b] -> [a]
+f2n f (y:ys) (x:xs) = fst $ foldl (\(acc, y:ys) x -> (acc ++ [f y x], ys)) ([f y x], ys) xs
+f2n_test1 = f2n (+) [1..5] [1..5] == [2,4,6,8,10]
+f2n_test2 = f2n (*) [1..5] [1..5] == [1,4,9,16,25]
+f2n_test3 = f2n (^) [1..5] [1..5] == [1,4,27,256,3125]
+
+f2k f = fst . foldl (\(acc, flag) x -> if flag then (if f x then (acc++[x], flag ) else (acc, not flag)) else (acc, flag) ) ([], True)
+f2k_test1 = f2k (>0) [1,2,3,-1] == [1,2,3]
+f2k_test2 = f2k (==3) [1..5] == []
+f2k_test3 = f2k (<5) [1..10] == [1,2,3,4]
+
 {-
  3. Использование свёртки как носителя рекурсии (для запуска свёртки можно использовать список типа [1..n]).
   a) Найти сумму чисел от a до b.
@@ -51,6 +156,30 @@
      n слагаемых).
   e) Проверить, является ли заданное целое число простым.
 -}
+
+f3a :: (Enum a, Num a) => a -> a -> a
+f3a a b = foldl (\k x -> k + x) 0 [a..b]
+f3a_test1 = f3a 3 5 == 12
+f3a_test2 = f3a 2 6 == 20
+f3a_test3 = f3a 1 3 == 6
+
+f3b :: (Enum b, Num b) => b -> b -> b
+f3b a b =fst $ foldl (\(s, prev) x -> (s + prev, prev * x)) (0, (foldl (*) 1 [1..a])) [(a+1)..(b+1)]
+f3b_test1 = f3b 1 3 == 9
+f3b_test2 = f3b 1 4 == 33
+f3b_test3 = f3b 3 4 == 30
+
+f3c :: (Enum b, Num a, Num b) => b -> [a]
+f3c n = fst $ foldl (\(acc, (prev, prevprev)) x -> (acc++[prev], (prev + prevprev, prev))) ([], (1, 0)) [1..n] 
+f3c_test1 = f3c 10 == [1,1,2,3,5,8,13,21,34,55]
+f3c_test2 = f3c 7 == [1,1,2,3,5,8,13]
+f3c_test3 = f3c 5 == [1,1,2,3,5]
+
+f3e :: Integral a => a -> Bool
+f3e n = snd $ foldl (\(flag1, flag2) x -> if mod n x == 0 then (flag1, flag1) else (flag1, flag2)) (False, True) [2..(n - 1)] 
+f3e_test1 = f3e 5 == True
+f3e_test2 = f3e 37 == True
+f3e_test3 = f3e 10 == False
 
 {-
  4. Решить задачу о поиске пути с максимальной суммой в треугольнике (см. лекцию 3) при условии,
