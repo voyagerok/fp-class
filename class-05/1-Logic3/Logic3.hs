@@ -10,7 +10,7 @@ module Logic3 where
 data Logic3 = T -- Истина
             | U -- Неизвестно
             | F -- Ложь
-            deriving(Eq)
+            deriving(Show,Eq)
 
 {-
   2. Реализовать логическую операцию not3, определяемую таблицей:
@@ -31,7 +31,10 @@ data Logic3 = T -- Истина
 -}
 
 not3 :: Logic3 -> Logic3
-not3 = undefined
+not3 val
+	| val == T = U
+	| val == U = F
+	| otherwise = T
 
 {-
   3. Реализовать логические операции \/ (дизъюнкция) и /\ (конъюнкция), определяемые следующими
@@ -47,19 +50,25 @@ not3 = undefined
 -}
 
 (\/) :: Logic3 -> Logic3 -> Logic3
-a \/ b = undefined
+a /\ b 
+	|a == F || b == F = F
+	|a == b = a
+	|otherwise = U
 
 (/\) :: Logic3 -> Logic3 -> Logic3
-a /\ b = undefined
+a \/ b 
+	|a == T || b == T = T
+	|a == b = a
+	|otherwise = U
 
 -- 4. Реализовать аналоги стандартных функций and, or, any, all для случая трёхзначной логики.
 
 and3, or3 :: [Logic3] -> Logic3
-and3 = undefined
-or3 = undefined
+and3 = foldl(\val x -> x /\ val) T
+or3 = foldl(\val x -> x \/ val) F
 
 any3, all3 :: (a -> Logic3) -> [a] -> Logic3
-any3 = undefined
+any3 f = foldl(\val x -> if f x == T then T else val) F
 all3 = undefined
 
 {-
