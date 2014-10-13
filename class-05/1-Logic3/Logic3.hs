@@ -69,7 +69,7 @@ or3 = foldl(\val x -> x \/ val) F
 
 any3, all3 :: (a -> Logic3) -> [a] -> Logic3
 any3 f = foldl(\val x -> if f x == T then T else val) F
-all3 = undefined
+all3 f = foldl(\val x -> if f x == F then F else val) T
 
 {-
   5. Перебирая все возможные значения логической переменной, доказать тождественную истинность
