@@ -13,4 +13,14 @@
   командной строки.
 -}
 
-main = undefined
+import System.IO
+import Control.Monad
+
+readF = do
+	handle <- openFile "hello.txt" ReadMode
+	contents <- hGetContents handle
+	hClose handle
+
+main  = do
+	rs <- sequence [getLine, getLine, getLine]
+	print rs
