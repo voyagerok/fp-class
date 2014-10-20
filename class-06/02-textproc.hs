@@ -15,11 +15,36 @@
 
 import System.IO
 import Control.Monad
+import Data.List
+import Data.Char
+import System.Directory
 
-readF = do
-	handle <- openFile "hello.txt" ReadMode
-	contents <- hGetContents handle
-	hClose handle
+countLines :: FilePath -> IO ()
+countLines fname = do
+	contents <- readFile fname
+	print $ length (lines contents)
+
+toUp fname = do
+	contents <- readFile fname
+	putStrLn (map toUpper contents)
+
+addStr fname s flag = do
+	hdl <- openFile "foo.txt" ReadWriteMode
+	hdl1 <- openFile fname ReadMode
+	contents <- hGetContents hdl1
+	if (flag == 0) then
+		hPutStr hdl (s++"\n"++contents)
+	else
+		hPutStr hdl (contents++"\n"++s)
+	hClose hdl
+	hClose hdl1
+	removeFile fname	
+	renameFile "foo.txt" fname
+
+unionFiles fname1 fname2 = do
+	cnt1 <- readFile fname1
+	cnt2 <- readFile fname2
+	writeFile "file3" $ unlines $ (zipWith (++) (lines $ foldl (\acc x -> if x == '\n' then acc++[' ']++[x] else acc++[x]) [] cnt1) (lines cnt2))
 
 main  = do
 	rs <- sequence [getLine, getLine, getLine]
