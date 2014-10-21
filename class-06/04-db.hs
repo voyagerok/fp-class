@@ -13,4 +13,18 @@
 
 -}
 
+import Data.List
+import Data.Char
+import System.Environment
+import Control.Monad
+import System.IO
+
+avgAge fname = do
+	contents <- readFile fname
+	let list = lines contents
+	let list1 = foldl (\acc x -> if x == ";" then acc++[";"] else acc++[x]) [] list
+	let list2 = map lines list1
+	mapM_ print list2
+	
+
 main = undefined
