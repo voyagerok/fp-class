@@ -20,7 +20,7 @@ eval (e1 `Mul` e2) = eval e1 * eval e2
 -}
 
 instance Eq Expr where
-  (==) = undefined
+  e1 == e2 = eval e1 == eval e2
 
 {-
   Реализуйте для этого типа экземпляр класса типов Show так,
@@ -30,7 +30,21 @@ instance Eq Expr where
 -}
 
 instance Show Expr where
-  show = undefined
+  show (I n) = show n
+  show (Add e1 e2) = (show e1) ++ "+" ++ (show e2)
+  show (Mul (Add (I n1) (I n2)) e1) = "(" ++ (show (Add (I n1) (I n2))) ++ ")" ++ "*" ++ show e1
+  show (Mul e1 (Add (I n1) (I n2))) = "(" ++ show e1 ++ ")" ++ "*"  ++ (show (Add (I n1) (I n2)))
+  show (Mul e1 e2) = (show e1) ++ "*" ++ (show e2)
+
+test1 = map show exprs
+  where
+    expr 1 = (I 5 `Add` I 1) `Mul` I 7
+    expr 2 = I 6 `Add` (I 6`Mul` I 6)
+    expr 3 = (I 12 `Add` I 17) `Add` I 13
+    expr 4 = I 42
+
+    exprs = map expr [1..4]
+  
 
 -- Тесты
 test = all (== expr 4) exprs
