@@ -20,7 +20,7 @@ getData s = foldl (\acc x -> if x == '-' then acc ++ [Nothing] else acc ++ [Just
 {- Напишите функцию, группирующую данные по суткам. -}
 
 dataByDay :: SensorData -> [SensorData]
-dataByDay = undefined
+dataByDay l = foldl (\((acc, temp), c) x -> if c < 4 then ((acc, temp ++ x), c + 1) else ((acc ++ [temp ++ x]), 0)) (([], []), 0) l
 
 {-
   Посчитайте минимальное значение среди показаний датчика,
