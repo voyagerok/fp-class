@@ -1,4 +1,5 @@
 import System.Environment
+import System.Random
 
 {-
   Напишите функцию reduce, принимающую один целочисленный аргумент a и возвращающую 0,
@@ -7,7 +8,10 @@ import System.Environment
 -}
 
 reduce :: Integral a => a -> a
-reduce = undefined
+reduce a
+	| a `mod` 3 == 0 = 0
+	| a `mod` 2 /= 0 = a ^ 2
+	| otherwise = a ^ 3 
 
 {-
   Напишите функцию, применяющую функцию reduce заданное количество раз к значению в контексте,
@@ -15,7 +19,7 @@ reduce = undefined
 -}
 
 reduceNF :: (Functor f, Integral a) => Int -> f a -> f a
-reduceNF = undefined
+reduceNF n f = foldl (\acc x -> fmap reduce acc) f [1..n] 
 
 {-
   Реализуйте следующие функции-преобразователи произвольным, но, желательно, осмысленным и
@@ -23,17 +27,22 @@ reduceNF = undefined
 -}
 
 toList :: Integral a => [(a, a)]  -> [a]
-toList = undefined
+toList = foldl (\acc x -> acc ++ [fst x + snd x]) []
 
 toMaybe :: Integral a => [(a, a)]  -> Maybe a
-toMaybe = undefined
+toMaybe [] = Nothing
+toMaybe l = Just (sum $ map fst l)
 
 toEither :: Integral a => [(a, a)]  -> Either String a
-toEither = undefined
+toEither [] = Left "Empty"
+toEither l = Right (sum $ map fst l)
 
 -- воспользуйтесь в этой функции случайными числами
-toIO :: Integral a => [(a, a)]  -> IO a
-toIO = undefined
+toIO :: (Random a, Integral a) => [(a, a)]  -> IO a
+toIO l = do
+  gen <- newStdGen
+  let n = fst $ randomR (1, 20) gen
+  return $ (n * sum $ map snd l)
 
 {-
   В параметрах командной строки задано имя текстового файла, в каждой строке
@@ -45,19 +54,37 @@ toIO = undefined
 -}
 
 parseArgs :: [String] -> (FilePath, Int)
-parseArgs = undefined
+parseArgs l = (head l, read $ last l)
 
 readData :: FilePath -> IO [(Int, Int)]
-readData = undefined
+readData fname = do
+  contents <- readFile fname
+  return $ foldl (\acc x -> acc ++ [(read $ head x, read $ last x)]) [] (map words $ lines contents)
+
+test fname = do
+	contents <- readFile fname
+	print $ foldl (\acc x -> acc ++ [(head x, last x)]) [] (map words $ lines contents)
 
 main = do
   (fname, n) <- parseArgs `fmap` getArgs
   ps <- readData fname
-  undefined
+  print $ reduceNF n (toList ps)
+  print $ reduceNF n (toMaybe ps)
   print $ reduceNF n (toEither ps)
   reduceNF n (toIO ps) >>= print
 
 {-
   Подготовьте несколько тестовых файлов, демонстрирующих особенности различных контекстов.
   Скопируйте сюда результаты вызова программы на этих файлах.
+:main "temp1.txt" 1
+[8,64,0,512]
+Just 1000
+Right 1000
+0
+
+:main "temp2.txt" 1
+[0,0,25,512,512]
+Just 361
+Right 361
+32768
 -}
