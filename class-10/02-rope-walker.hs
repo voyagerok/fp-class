@@ -1,4 +1,5 @@
-import Control.Monad 
+import Control.Monad
+import Control.Applicative 
 {-
   Модифицируйте имеющуюся реализацию задачи о канатоходце (лекция 9) следующим образом:
   1) реализуйте загрузку входных данных из файла следующего вида:
@@ -25,23 +26,29 @@ type Pole = (Birds, Birds)
 
 balance = 3
 
-updatePole :: Pole -> Maybe Pole
-updatePole p = if unbalanced p then Nothing else Just p
+updatePole :: Pole -> Either String Pole
+updatePole p = if (unbalanced p) > balance then Left "Unbalanced left" else if (unbalanced p) < balance * (-1) then Left "unbalanced right" else Right p
   where
-    unbalanced (l, r) = abs (l - r) > balance
+    unbalanced (l, r) = l - r
 
-landLeft :: Birds -> Pole -> Maybe Pole
+landLeft :: Birds -> Pole -> Either String Pole
 landLeft n (left, right) = updatePole (left + n, right)
 
-landRight :: Birds -> Pole -> Maybe Pole
+landRight :: Birds -> Pole -> Either String Pole
 landRight n (left, right) = updatePole (left, right + n)
 
-banana :: Pole -> Maybe Pole
-banana = const Nothing
+landBoth :: Birds -> Pole -> Either String Pole
+landBoth n (left, right) = updatePole (left + n, right + n)
 
-tests = all test [1..3]
-  where
-    test 1 = (return (0, 0) >>= landLeft 1 >>= landRight 4 
-              >>= landLeft (-1) >>= landRight (-2)) == Nothing
-    test 2 = (return (0, 0) >>= landRight 2 >>= landLeft 2 >>= landRight 2) == Just (2, 4)
-    test 3 = (return (0, 0) >>= landLeft 1 >>= banana >>= landRight 1) == Nothing
+unlandAll :: Pole -> Either String Pole
+unlandAll = const (Right (0, 0))
+
+banana :: Pole -> Either String Pole
+banana = const (Left "Banana")
+
+test1 = (return (0, 0) >>= landLeft 1 >>= landRight 4 
+       >>= landLeft (-1) >>= landRight (-2)) == Left "unbalanced right"
+test2 = (return (0, 0) >>= landRight 2 >>= landLeft 2 >>= landRight 2) == Right (2, 4)
+test3 = (return (0, 0) >>= landLeft 1 >>= banana >>= landRight 1) == Left ("Banana")
+test4 = (return (0, 0) >>= landLeft 1 >>= unlandAll >>= landRight 1) == Right (0, 1)
+test5 = (return (0, 0) >>= landLeft 2 >>= landBoth 3 >>= landLeft 3) == Left ("Unbalanced left")
