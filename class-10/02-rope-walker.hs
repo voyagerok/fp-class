@@ -46,6 +46,16 @@ unlandAll = const (Right (0, 0))
 banana :: Pole -> Either String Pole
 banana = const (Left "Banana")
 
+interpretAct1 act n p
+  | act == "R" = landRight n p
+  | act == "L" = landLeft n p
+  | act == "RL" = landBoth n p
+  | act == "U" = unlandAll
+  | act == "B" = banana
+  | otherwise = landBoth 0 p
+  
+interpretAct xs = foldl (\acc [act, n, p] -> interpretAct act (read n) (read p))
+
 test1 = (return (0, 0) >>= landLeft 1 >>= landRight 4 
        >>= landLeft (-1) >>= landRight (-2)) == Left "unbalanced right"
 test2 = (return (0, 0) >>= landRight 2 >>= landLeft 2 >>= landRight 2) == Right (2, 4)
