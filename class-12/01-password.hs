@@ -17,11 +17,14 @@ import Control.Monad.Writer
 import Data.Char
 import System.Environment
 
+--значения true-false для ограничений
 isValid :: String -> [String]-> Bool
 isValid s (len : digits : letters : punct : [])= (length s >= read len) && 
-  (if (read digits) then (any isNumber s) else True) && 
-  (if (read letters) then (any isAlpha s) else True) &&
-  (if (read punct) then (any isPunctuation s) else True)
+  (if (read $ toUp digits) then (any isNumber s) else True) && 
+  (if (read $ toUp letters) then (any isAlpha s) else True) &&
+  (if (read $ toUp punct) then (any isPunctuation s) else True)
+  where
+    toUp str = foldl (\acc x -> if x == head str then acc ++ [toUpper x] else acc ++ [x]) "" str
 
 getValidPassword :: MaybeT (ReaderT [String] (WriterT [String] IO)) String
 getValidPassword = do
